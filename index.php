@@ -1,56 +1,57 @@
 <?php
-session_start(); // (1)!
+
+$pdo = new PDO('mysql:host=127.0.0.1;port=3306;dbname=products_crud', 'user', 'password');
+
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+$statement = $pdo->prepare('SELECT * FROM products ORDER BY create_date DESC');
+$statement->execute();
+$products = $statement->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<html>
-<head>
-    <title>Todo List</title>
-		<link rel="stylesheet" type="text/css" href="style.css">
-</head>
-<body>
-    <h1>Todo List</h1>
-    
-    <form method="post" action="">
-        <input type="text" name="task" placeholder="Enter a new task" required>
-        <input type="submit" name="addTask" value="Add Task">
-    </form>
 
-    <?php
-    if (!isset($_SESSION['todoList'])) { // (2)!
-        $_SESSION['todoList'] = []; // (8)!
-    }
-    
-    /*
-      Add the task to the list if the form is submitted.
-    */
-    if (isset($_POST['addTask'])) {
-        $task = $_POST['task'];
-        if (!empty($task)) {
-            array_push($_SESSION['todoList'], $task); // (3)!
-        }
-    }
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Products CRUD</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <h1>Products CRUD</h1>
 
-    /*
-      Display the list if it is not empty.
-    */
-    if (!empty($_SESSION['todoList'])) { // (4)!
-        echo "<h2>Tasks</h2>";
-        echo "<ul>";
-        foreach ($_SESSION['todoList'] as $index => $task) { // (5)!
-            echo "<li>$task <a href='index.php?remove=$index'>Remove</a></li>";
-        }
-        echo "</ul>";
-    }
+    <p>
+      <a href="create.php" class="btn btn-success">Create Product</a>
+    </p>
 
-    /*
-      Remove the task from the list if the remove parameter is set.
-    */
-    if (isset($_GET['remove'])) {
-        $index = $_GET['remove'];
-        if (isset($_SESSION['todoList'][$index])) { // (6)!
-            unset($_SESSION['todoList'][$index]); // (7)!
-        }
-    }
-    ?>
-</body>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Image</th>
+          <th scope="col">Title</th>
+          <th scope="col">Price</th>
+          <th scope="col">Create Date</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($products as $i => $product) { ?>
+          <tr>
+          <th scope="row"><?php echo $i ?></th>
+          <td><?php echo $product['image'] ?></th>
+          <td><?php echo $product['title'] ?></th>
+          <td><?php echo $product['price'] ?></th>
+          <td><?php echo $product['create_date'] ?></th>
+          <td>
+            <a href="update.php?id=<?php echo $product['id'] ?>" class="btn btn-sm btn-primary">Edit</a>
+            <a href="delete.php?id=<?php echo $product['id']?>" type="button" class="btn btn-sm btn-danger">Delete</a>
+          </td>
+        </tr>
+        <?php } ?>
+      </tbody>
+    </table>
+  </body>
 </html>
