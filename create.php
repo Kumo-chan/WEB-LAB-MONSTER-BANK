@@ -46,6 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
        <link rel="stylesheet" href="style.css">
   </head>
 <body>
+<p>
+    <a href="index.php" class="btn btn-default">Back to products</a>
+</p>
 <h1>Create new Product</h1>
 
 <?php if (!empty($errors)): ?>
