@@ -6,7 +6,7 @@ services:
     container_name: db
     environment:
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: products_crud
+      MYSQL_DATABASE: monster_bank
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     ports:
@@ -25,5 +25,13 @@ services:
     restart: always
     ports:
       - 8081:80
+  web:
+    image: tomsik68/xampp
+    container_name: web
+    ports:
+      - 41061:22
+      - 41062:80
+    volumes:
+      - ./www:/www
 volumes:
   db:
