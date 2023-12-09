@@ -6,40 +6,40 @@ if (!$id) {
     exit;
 }
 
-$pdo = new PDO('mysql:host=db;port=3306;dbname=monster_bank', 'user', 'password');
+$pdo = new PDO('mysql:db_name=monster_bank;host=localhost:3306', 'user', 'password');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$statement = $pdo->prepare('SELECT * FROM products WHERE id = :id');
+$statement = $pdo->prepare('SELECT * FROM monster_bank.monster WHERE id = :id');
 $statement->bindValue(':id', $id);
 $statement->execute();
-$product = $statement->fetch(PDO::FETCH_ASSOC);
+$monster = $statement->fetch(PDO::FETCH_ASSOC);
 
 
-$title = $product['title'];
-$description = $product['description'];
-$price = $product['price'];
+$name = $monster['name'];
+$description = $monster['description'];
+$strength = $monster['strength'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $title = $_POST['title'];
+    $name = $_POST['name'];
     $description = $_POST['description'];
-    $price = $_POST['price'];
+    $strength = $_POST['strength'];
 
-    if (!$title) {
-        $errors[] = 'Product title is required';
+    if (!$name || strlen($name) < 4 || strlen($name) > 46) {
+        $errors[] = 'Monster name is required and must be between 3 and 45 characters';
     }
 
-    if (!$price) {
-        $errors[] = 'Product price is required';
+    if (!$strength || $strength < 1 || $strength > 10) {
+        $errors[] = 'Monster strength is required and must be between 1 and 10';
     }
 
     if (empty($errors)) {
-        $statement = $pdo->prepare("UPDATE products SET title = :title,
+        $statement = $pdo->prepare("UPDATE monster SET name = :name,
                                         description = :description, 
-                                        price = :price WHERE id = :id");
-        $statement->bindValue(':title', $title);
+                                        strength = :strength WHERE id = :id");
+        $statement->bindValue(':name', $name);
         $statement->bindValue(':description', $description);
-        $statement->bindValue(':price', $price);
+        $statement->bindValue(':strength', $strength);
         $statement->bindValue(':id', $id);
 
         $statement->execute();
@@ -54,15 +54,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Products CRUD</title>
+    <title>Monster bank</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <p>
-    <a href="index.php" class="btn btn-default">Back to products</a>
+    <a href="index.php" class="btn btn-default">Back to monsters</a>
 </p>
-<h1>Update Product: <b><?php echo $product['title'] ?></b></h1>
+<h1>Update Monster: <b><?php echo $monster['name'] ?></b></h1>
 
 <?php if (!empty($errors)): ?>
     <div class="alert alert-danger">
@@ -74,16 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <form method="post" enctype="multipart/form-data">
     <div class="form-group">
-        <label>Product title</label>
-        <input type="text" name="title" class="form-control" value="<?php echo $title ?>">
+        <label>Monster name</label>
+        <input type="text" name="name" class="form-control" value="<?php echo $name ?>" minlength='3' maxlength='45' required>
     </div>
     <div class="form-group">
-        <label>Product description</label>
+        <label>Monster description</label>
         <textarea class="form-control" name="description"><?php echo $description ?></textarea>
     </div>
     <div class="form-group">
-        <label>Product price</label>
-        <input type="number" step=".01" name="price" class="form-control" value="<?php echo $price ?>">
+        <label>Monster strength</label>
+        <input type="number" min="1" max="10" name="strength" class="form-control"  value="<?php echo $strength ?>" required>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

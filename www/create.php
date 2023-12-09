@@ -1,36 +1,39 @@
 <?php
 
-$pdo = new PDO('mysql:host=db;port=3306;dbname=monster_bank', 'user', 'password');
+$pdo = new PDO('mysql:db_name=monster_bank;host=localhost:3306', 'user', 'password');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $errors = [];
 
-$title = '';
+$name = '';
 $description = '';
-$price = '';
+$strength = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $title = $_POST['title'];
+    $name = $_POST['name'];
     $description = $_POST['description'];
-    $price = $_POST['price'];
+    $strength = $_POST['strength'];
 
-    if (!$title) {
-        $errors[] = 'Product title is required';
+    if (!$name) {
+        $errors[] = 'Monster name is required';
     }
 
-    if (!$price) {
-        $errors[] = 'Product price is required';
+    if (!$strength) {
+        $errors[] = 'Monster strength is required';
     }
 
     if (empty($errors)) {
-        $statement = $pdo->prepare("INSERT INTO products (title, description, price, create_date)
-                VALUES (:title, :description, :price, :date)");
-        $statement->bindValue(':title', $title);
-        $statement->bindValue(':description', $description);
-        $statement->bindValue(':price', $price);
-        $statement->bindValue(':date', date('Y-m-d H:i:s'));
-
-        $statement->execute();
+        try {
+            $statement = $pdo->prepare("INSERT INTO monster_bank.monster (name, description, strength)
+                VALUES (:name, :description, :strength)");
+            $statement->bindValue(':name', $name);
+            $statement->bindValue(':description', $description);
+            $statement->bindValue(':strength', $strength);
+            $statement->execute();
+        } catch (PDOException $e) {
+            $errors[] = $e->getMessage();
+        }
+        
     }
 
 }
@@ -41,15 +44,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Products CRUD</title>
+    <title>Monser Bank</title>
        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
        <link rel="stylesheet" href="style.css">
   </head>
 <body>
 <p>
-    <a href="index.php" class="btn btn-default">Back to products</a>
+    <a href="index.php" class="btn btn-default">Back to Bank</a>
 </p>
-<h1>Create new Product</h1>
+<h1>Register a new Monster</h1>
 
 <?php if (!empty($errors)): ?>
     <div class="alert alert-danger">
@@ -61,20 +64,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <form action="" method="post">
     <div class="form-group">
-        <label>Product Image</label><br>
-        <input type="file" name="image">
+        <label>Monster name</label><br>
+        <input type="text" name="name" minlength='3' maxlength='45' required>
     </div>
     <div class="form-group">
-        <label>Product title</label>
-        <input type="text" name="title" class="form-control" value="">
-    </div>
-    <div class="form-group">
-        <label>Product description</label>
+        <label>Monster description</label>
         <textarea class="form-control" name="description"></textarea>
     </div>
     <div class="form-group">
-        <label>Product price</label>
-        <input type="number" step=".01" name="price" class="form-control" value="">
+        <label>Monster strength</label>
+        <input type="number" min="1" max="10" name="strength" class="form-control" value="1" required>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
