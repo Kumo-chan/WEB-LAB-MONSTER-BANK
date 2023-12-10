@@ -8,5 +8,6 @@ start-docker:
 	docker compose up -d
 generate-monsters:
 	@echo "Generating data"
+	sleep 3 #To avoid running without DB running
 	@php ./generate-db.php
 install: start-docker generate-monsters start-server
