@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $statement = $pdo->prepare("UPDATE monster SET name = :name,
+        $statement = $pdo->prepare("UPDATE monster_bank.monster SET name = :name,
                                         description = :description, 
                                         strength = :strength WHERE id = :id");
         $statement->bindValue(':name', $name);
